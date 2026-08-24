@@ -30,9 +30,12 @@ def client(service: str, settings: Settings | None = None):
     if service == "s3":
         # Path-style addressing keeps S3 happy against a localhost endpoint.
         extra["config"] = Config(s3={"addressing_style": "path"})
-    return boto3.client(service, **_kwargs(s), **extra)
+    # service is a plain str, not one of boto3-stubs' per-service Literal
+    # overloads, since this factory is deliberately generic over service name.
+    return boto3.client(service, **_kwargs(s), **extra)  # type: ignore[call-overload]
 
 
 def resource(service: str, settings: Settings | None = None):
     s = settings or get_settings()
-    return boto3.resource(service, **_kwargs(s))
+    # Same generic-service-name limitation as client() above.
+    return boto3.resource(service, **_kwargs(s))  # type: ignore[call-overload]

@@ -30,7 +30,9 @@ class OrderItem(BaseModel):
     quantity: int = Field(gt=0)
     unit_price_cents: int = Field(ge=0)
 
-    @computed_field
+    # pydantic's mypy plugin normally recognizes this pattern; it's incompatible
+    # with the installed mypy version, so silence the false positive directly.
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def line_total_cents(self) -> int:
         return self.quantity * self.unit_price_cents
@@ -50,12 +52,12 @@ class Order(BaseModel):
     status: OrderStatus = OrderStatus.PLACED
     created_at: datetime = Field(default_factory=_utcnow)
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def total_cents(self) -> int:
         return sum(item.line_total_cents for item in self.items)
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def item_count(self) -> int:
         return sum(item.quantity for item in self.items)
