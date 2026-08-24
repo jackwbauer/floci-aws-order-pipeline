@@ -1,0 +1,55 @@
+[project]
+name = "floci-order-pipeline"
+version = "0.1.0"
+description = "Event-driven order pipeline running entirely on Floci (local AWS emulator)"
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "Jack Bauer" }]
+requires-python = ">=3.11,<4.0"
+dependencies = [
+    "boto3>=1.34",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "psycopg[binary]>=3.1",
+]
+
+[tool.poetry]
+packages = [
+    { include = "order_pipeline", from = "src" },
+    { include = "infra" },
+]
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8.0"
+httpx = ">=0.27"
+testcontainers = { extras = ["postgres"], version = ">=4.0" }
+ruff = ">=0.4"
+mypy = ">=1.9"
+boto3-stubs = { extras = ["essential", "events"], version = ">=1.34" }
+httpx2 = "^2.12.0"
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+addopts = "-ra -q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 88
+src = ["src", "infra", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+# Depends() in argument defaults is the intended FastAPI pattern.
+ignore = ["B008"]
+
+[tool.mypy]
+python_version = "3.11"
+packages = ["order_pipeline", "infra"]
+mypy_path = "src"
+ignore_missing_imports = true
+
+[build-system]
+requires = ["poetry-core>=2.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,53 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # GitHub-hosted Linux runners ship with a working Docker daemon, so
+    # Testcontainers can pull and run Floci + Postgres. No AWS account needed.
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Poetry
+        run: pipx install poetry
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: poetry
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Lint
+        run: poetry run ruff check .
+
+      - name: Type check
+        run: poetry run mypy
+
+      - name: Test
+        run: poetry run pytest -ra
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Type check
+        run: mypy
+
+      - name: Pre-pull images (nicer logs)
+        run: |
+          docker pull floci/floci:latest
+          docker pull postgres:16-alpine
+
+      - name: Test
+        run: pytest -ra
