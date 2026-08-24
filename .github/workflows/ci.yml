@@ -35,19 +35,10 @@ jobs:
       - name: Type check
         run: poetry run mypy
 
-      - name: Test
-        run: poetry run pytest -ra
-
-      - name: Lint
-        run: ruff check .
-
-      - name: Type check
-        run: mypy
-
       - name: Pre-pull images (nicer logs)
         run: |
           docker pull floci/floci:latest
           docker pull postgres:16-alpine
 
       - name: Test
-        run: pytest -ra
+        run: poetry run pytest -ra
